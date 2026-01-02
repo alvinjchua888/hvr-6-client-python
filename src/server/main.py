@@ -56,6 +56,13 @@ async def lifespan(app: FastAPI):
     orchestrator.start()
     logger.info("Agent Orchestrator started")
 
+    # Setup routes with initialized orchestrator
+    app.include_router(create_agents_router(orchestrator))
+    app.include_router(create_tasks_router(orchestrator))
+    app.include_router(create_jobs_router(orchestrator))
+    app.include_router(create_health_router(orchestrator))
+    logger.info("API routes configured")
+
     yield
 
     # Shutdown
@@ -82,13 +89,8 @@ app.add_middleware(
 )
 
 
-# Include API routers
-def setup_routes():
-    """Setup all API routes"""
-    app.include_router(create_agents_router(orchestrator))
-    app.include_router(create_tasks_router(orchestrator))
-    app.include_router(create_jobs_router(orchestrator))
-    app.include_router(create_health_router(orchestrator))
+# Include API routers - moved to after app creation
+# Will be called in lifespan context
 
 
 # Root endpoint
@@ -164,10 +166,6 @@ def broadcast_websocket(message: dict):
 
     # Remove disconnected clients
     websocket_connections.difference_update(disconnected)
-
-
-# Setup routes after app creation
-setup_routes()
 
 
 def main():

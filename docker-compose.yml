@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  hvr-client:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hvr6-client-python
+    ports:
+      - "3000:3000"
+    environment:
+      - HVR_API_BASE_URL=${HVR_API_BASE_URL:-http://localhost:4340}
+      - HVR_API_USERNAME=${HVR_API_USERNAME:-admin}
+      - HVR_API_PASSWORD=${HVR_API_PASSWORD:-changeme}
+      - PORT=3000
+      - HOST=0.0.0.0
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - hvr-network
+
+networks:
+  hvr-network:
+    driver: bridge
